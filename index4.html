@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Ты защищён от токсичности на работе?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #f5e6a0 0%, #e0cd50 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .game-container {
+            max-width: 950px;
+            width: 100%;
+            background: #fffff0;
+            border-radius: 40px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            padding: 28px 24px;
+        }
+
+        .start-screen, .info-screen {
+            text-align: center;
+        }
+
+        .start-screen h1, .info-screen h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #5a7a10, #8bb82e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .start-screen p, .info-screen p {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2a4a00;
+            background: #f9fbe7;
+            padding: 20px 22px;
+            border-radius: 28px;
+            line-height: 1.55;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .start-btn, .info-btn {
+            background: #9acd32;
+            border: none;
+            border-radius: 60px;
+            padding: 16px 40px;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(154, 205, 50, 0.4);
+        }
+
+        .start-btn:active, .info-btn:active {
+            transform: scale(0.96);
+            background: #6b8e23;
+        }
+
+        .quiz-screen {
+            display: none;
+        }
+
+        .progress-area {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar-bg {
+            background: #e0e8c0;
+            border-radius: 20px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #9acd32, #6b8e23);
+            width: 0%;
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 20px;
+        }
+
+        .question-counter {
+            text-align: right;
+            font-size: 16px;
+            font-weight: 700;
+            color: #6b8e23;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2a4a00;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .answers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .answer-btn {
+            background: #ffffff;
+            border: 2px solid #c8d88a;
+            border-radius: 24px;
+            padding: 18px 20px;
+            text-align: left;
+            font-size: 17px;
+            font-weight: 600;
+            color: #2a4a00;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            line-height: 1.45;
+        }
+
+        .answer-btn:active {
+            background: #f0f7e0;
+            transform: scale(0.98);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 580px;
+            max-height: 85vh;
+            border-radius: 32px;
+            padding: 26px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-icon {
+            font-size: 56px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 26px;
+            font-weight: 800;
+            text-align: center;
+            color: #9acd32;
+            margin-bottom: 16px;
+        }
+
+        .modal-text {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #2a4a00;
+            overflow-y: auto;
+            max-height: 55vh;
+            padding-right: 8px;
+            margin-bottom: 24px;
+            white-space: pre-wrap;
+        }
+
+        .modal-btn {
+            background: #9acd32;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            padding: 16px 20px;
+            font-size: 18px;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .modal-btn:active {
+            background: #6b8e23;
+            transform: scale(0.97);
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .result-icon {
+            font-size: 80px;
+            margin-bottom: 18px;
+        }
+
+        .result-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 22px;
+            color: #2a4a00;
+            background: #e8f0d0;
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 50px;
+            line-height: 1.3;
+        }
+
+        .result-description {
+            font-size: 19px;
+            font-weight: 500;
+            color: #1a3a00;
+            line-height: 1.6;
+            margin-bottom: 32px;
+            margin-top: 20px;
+            text-align: left;
+            white-space: pre-wrap;
+            background: #f9fbe7;
+            padding: 20px;
+            border-radius: 28px;
+        }
+
+        .result-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .share-btn {
+            background: #9acd32;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            padding: 15px 24px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .share-btn:active {
+            background: #6b8e23;
+            transform: scale(0.97);
+        }
+
+        .restart-btn {
+            background: transparent;
+            border: 2px solid #c8d88a;
+            border-radius: 60px;
+            padding: 15px 24px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #6b8e23;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        .restart-btn:active {
+            background: #f0f7e0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 18px;
+            }
+            .start-screen h1, .info-screen h1 {
+                font-size: 22px;
+            }
+            .start-screen p, .info-screen p {
+                font-size: 16px;
+                padding: 16px;
+            }
+            .start-btn, .info-btn {
+                font-size: 18px;
+                padding: 14px 32px;
+            }
+            .question-text {
+                font-size: 21px;
+            }
+            .answer-btn {
+                padding: 16px 18px;
+                font-size: 15px;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+            .modal-text {
+                font-size: 16px;
+            }
+            .modal-title {
+                font-size: 22px;
+            }
+            .modal-btn {
+                font-size: 17px;
+                padding: 14px;
+            }
+            .result-title {
+                font-size: 20px;
+                padding: 10px 16px;
+            }
+            .result-description {
+                font-size: 17px;
+                padding: 16px;
+            }
+            .share-btn, .restart-btn {
+                font-size: 16px;
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="game">
+    <div id="startScreen" class="start-screen">
+        <h1>☠️🧪 ТЫ ЗАЩИЩЁН ОТ ТОКСИЧНОСТИ НА РАБОТЕ? 🧪☠️</h1>
+        <p>📌 Привет! Насколько хорошо ты умеешь распознавать манипуляции на работе? Насколько сильно на твою самооценку влияют безаргументированные обвинения или стыд? Часто ли ты выбираешь терпеть? Слушаешь ли ты себя и осознаёшь свои цели?<br><br>Пройди мой тест, выбирай варианты ответа: если таких ситуаций у тебя не было, то представь себя в такой ситуации – как бы ты поступил?</p>
+        <button class="start-btn" id="startBtn">Интересно →</button>
+    </div>
+
+    <div id="infoScreen" class="info-screen hidden">
+        <h1>☠️🧪 ТЫ ЗАЩИЩЁН ОТ ТОКСИЧНОСТИ НА РАБОТЕ? 🧪☠️</h1>
+        <p>📌 После прохождения теста ты получишь результат теста: насколько ты уязвим к токсичности на работе, или ты легко распознаёшь манипуляции и не боишься искать для себя другие условия? Информация носит рекомендательный характер.</p>
+        <button class="info-btn" id="infoBtn">Готово →</button>
+    </div>
+
+    <div id="quizScreen" class="quiz-screen">
+        <div class="progress-area">
+            <div class="question-counter" id="counter">Вопрос 1 из 9</div>
+            <div class="progress-bar-bg">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        <div class="question-text" id="questionText"></div>
+        <div class="answers-list" id="answersList"></div>
+    </div>
+
+    <div id="resultArea" class="result-card hidden">
+        <div class="result-icon" id="resultIcon"></div>
+        <div class="result-title" id="resultTitle"></div>
+        <div class="result-description" id="resultDesc"></div>
+        
+        <div class="result-buttons">
+            <button class="share-btn" id="shareBtn">📤 Поделиться результатом</button>
+            <button class="restart-btn" id="restartBtn">🔄 Пройти тест заново</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questionsData = [
+        { text: "1. Представь ситуацию, что твой руководитель говорит тебе: «Даже не знаю, как оценить твою работу, кажется, что ты не справляешься». Ты спрашиваешь: «Почему? В чем конкретно?» Руководитель отвечает: «Ну неужели, ты сам не понимаешь?» - и всё, больше ничего не говорит. Как думаешь, как расценить его это поведение?",
+            answers: [
+                { text: "А) Я уже в прошлом совершал ошибки на работе. Наверное, он хочет, чтобы я это вспомнил и исправил.", result: "danger", tip: "💡 Ты не можешь точно узнать, что думает другой человек. Как ты думаешь, эффективно ли , что твой босс на работе хочет, чтобы ты догадывался о чем-то? Быстро ли это приведёт к результату? Ведь если ты поймёшь его неправильно, компания потеряет время и прибыль, ведь в том время, что ты мог эффективно работать, ты сидел и думал о загадке от руководителя. Твой босс ведёт себя профессионально? Подумай" },
+                { text: "Б) У него нет времени сейчас мне объяснять, наверное, у него есть аргументы на этот счет, ведь он мой руководитель.", result: "danger", tip: "💡 Как думаешь, к чему приводит такое поведение босса? Другой сотрудник на твоём месте мог бы весь день переживать, и это бы сказалось на работе всего коллектива. Оцени поведение твоего босса, насколько он эффективно себя ведёт?" },
+                { text: "В) Он не говорит мне ничего конкретного, это неконструктивно. Это манипуляция, он хочет, чтобы я заволновался, иначе, зачем говорить загадками?", result: "safe" },
+                { text: "Г) Мне кажется, он хочет выжить меня с работы, я все задачи выполняю, и никаких конкретных ошибок он мне никогда не предъявлял.", result: "risk" }
+            ]
+        },
+        { text: "2. Та же самая ситуация из вопроса 1. Какие твои чувства могли бы быть после такого?",
+            answers: [
+                { text: "А) Никаких чувств. Мы привыкли, что он всегда на своей волне. А завтра он и не вспомнит об этом. За помощью также мы (коллектив) к нему никогда не обращаемся. Очевидно, на него наехало начальство, а он так «слил» негатив на меня. Бывает.", result: "risk" },
+                { text: "Б) Я пытаюсь не волноваться, но мне стало страшно. В голове скачут мысли о моих возможных ошибках. А сегодня ночью мне опять не уснуть.", result: "risk" },
+                { text: "В) Я начну сразу оправдываться из страха потерять работу.", result: "danger" },
+                { text: "Г) Я знаю, что это манипуляция, он делает это из-за какой-то выгоды своей. Но ко мне и к моей работе это не имеет никакого отношения, потому что он не привёл мне ни одного факта. Я не хочу работать на такого руководителя, я оценю ситуацию, поговорю с коллегами, и, наверное, сменю отдел.", result: "safe" }
+            ]
+        },
+        { text: "3. Та же самая ситуация из вопроса 1. Твой руководитель сказал: «ну, неужели ты сам не понимаешь?» И молчит. Смотрит на тебя. Твои действия?",
+            answers: [
+                { text: "А) Буду стоять и молчать, но внутри будут мысли путаться, буду вспоминать, что сделал не так, где мог ошибиться. Попробую мягко спросить, что случилось, ведь я не понимаю…", result: "risk", tip: "💡 Как думаешь, а почему он сам не скажет тебе, где фактически ты допустил ошибку? Почему ему может быть интересно так вести себя, чтобы ты догадывался? Прочитай, может тебе будет интересно, что такое газлайтинг и манипуляции. И потом проанализируй поведение своего босса." },
+                { text: "Б) Буду смотреть на него в упор уверенно, ведь меня не сломить подобными манипуляциями и дешёвым театром. Мне не в чем оправдываться. Он манипулятор, а с такими переговоры не ведут.", result: "safe" },
+                { text: "В) Вспомню свою ошибку на прошлой неделе, попрошу прощения за неё, спрошу, что дело в этом? Мне очень дорога эта работа, я не хочу, чтобы руководитель плохо думал обо мне…", result: "danger" },
+                { text: "Г) Ничего не могу сказать, у меня уже текут слёзы, мне страшно. Ведь он руководитель, если он так говорит, значит я правда совершил ошибку. Работаю вторую неделю. Я не справился…", result: "danger", tip: "💡 Компания тоже должна быть заинтересована в адаптации сотрудника. Ведь это обоюдный процесс. И руководитель тоже должен быть заинтересован в твоей эффективности. А в данном случае, руководитель снизил уровень твоей эффективности, ведь вместо того, чтобы работать сейчас, ты думаешь о неприятностях, о возможных твоих промахах. Подумай об этом." }
+            ]
+        },
+        { text: "4. Твой руководитель уже третий раз за месяц созывает совещание коллектива за 10 минут до конца рабочего дня и задерживает вас. Никто особо не противится, а какие твои мысли на этот счёт?",
+            answers: [
+                { text: "А) Я проверю, подписывал ли я согласие на ненормированный рабочий день. Если подписывал, то придётся пока оставаться. Если не подписывал – просто буду уходить с совещания, как только рабочий день заканчивается. А вообще, надо что-то с этим делать, о переработках никто не предупреждал.", result: "safe" },
+                { text: "Б) Так везде, все перерабатывают, так или иначе, мне нужна работа. Я остаюсь, кроме того, коллеги тоже не возникают.", result: "risk", tip: "💡 Тебе самому нравится перерабатывать? Ведь ты перерабатываешь не из-за того, что ты что-то не успел, а из-за прихоти руководителя. У которого хромает планирование рабочего дня, либо же он специально задерживает вас. Чем тебе выгодно задерживаться? А главное зачем это руководителю?" },
+                { text: "В) Это ненормально. Такое ощущение, что руководитель делает это специально, за 10 минут до конца работы. Ведь в работе должны быть утверждены часы для проведения совещаний и планирования работы в коллективе. С этим руководителем что-то не так… Зачем ему это нужно?", result: "safe" },
+                { text: "Г) Мне не нравится, но я боюсь что-то сказать и с кем-то поговорить. Говорила знакомым и родителям, они говорят, что руководитель ведёт себя неправильно, но ничего не сделаешь, ведь он босс. И наверх никому не скажешь – у нас так не принято, профсоюзов никаких не существует.", result: "danger" }
+            ]
+        },
+        { text: "5. На совещаниях директор говорит, что если у нас возникает какая-то проблема, чтобы мы незамедлительно обращались к кураторам, и что проблема обязательно решится. Когда я подходила один раз к куратору, он очень грубо от меня отмахнулся, повёл себя совсем не так, как должно быть. Что будешь делать? Какие твои мысли?",
+            answers: [
+                { text: "А) Да я и не рассчитывала, что кто-то будет помогать. У нас не коллектив, а змеиная нора. То, что сказал директор – ничего не значит. Он просто говорит красивые слова.", result: "risk", tip: "💡 Ты выбрал вариант о том, твой коллектив – это «змеиная нора». Почему ты решил, что ты не можешь найти другую рабочую атмосферу? Хотел бы ты работать у директора, который отвечает за свои слова?" },
+                { text: "Б) Я подниму этот вопрос на собрании с директором. Может, я не буду говорить имя куратора, но мне интересно, почему внутренняя корпоративная политика не соответствует тому, что говорит директор. Он не знает или не хочет знать? И будь что будет.", result: "safe" },
+                { text: "В) Я думаю, что директор просто говорит красивые слова, но на деле это не работает. У нас везде всё фальсифицируется. Да и работать особо некому, а эти кураторы завалены работой, вот он и нагрубил мне. У нас все перерабатывают, а директор просто поставлен для галочки.", result: "danger", tip: "💡 Почему ты оправдываешь компанию и других людей? Тебя устраивает эта работа и руководство? Чувствуешь ли ты, что ты здесь развиваешься, растёшь, или просто рабочие дни проходят и ты думаешь, что «везде так?»" },
+                { text: "Г) Спрошу у своего руководителя совета, что делать. Может, спрошу у куратора, почему он не может мне помочь, раз директор заявляет обратное. Попробую разобраться просто для себя, что происходит, и насколько мне подходит эта работа.", result: "safe" }
+            ]
+        },
+        { text: "6. Твой руководитель не соблюдает договорённости. Сначала ставит дедлайн через 3 дня, а потом через сутки подходит и спрашивает, когда будет сделана задача. Ты спрашиваешь: «а что изменился дедлайн?» Руководитель грубо одёргивает тебя и говорит, что это ОН определяет сроки выполнения, и чтобы ты поторопился (новых сроков дедлайна не называет). Что будешь делать в такой ситуации?",
+            answers: [
+                { text: "А) Для начала я успокоюсь. Потом вспомню, сколько раз он уже так делал (менял дедлайны), или это первый раз. Если первый раз, то ничего страшного. Могу и задержаться.", result: "risk", tip: "💡 Вижу, ты лоялен к своему руководителю, а, может, и к людям в целом. Но у руководителя есть свои обязанности, в том числе, соблюдение договорённостей со своими сотрудниками. И он должен выстраивать конструктивные взаимоотношения со своими сотрудниками." },
+                { text: "Б) Мне страшно потерять работу, я потороплюсь, и через несколько часов, когда босс остынет, подойду и мягко спрошу, к какому сроку должна быть готова задача. И что, я задержусь, если нужно. Мы – команда!", result: "danger", tip: "💡 Скажи, почему тебе страшно потерять ЭТУ работу? Или эту работу тебе не страшно потерять, но ты боишься не найти другую? Из-за чего тебе страшно? Ответишь на этот вопрос, возможно, ты узнаешь о других своих желаниях по поводу работы." },
+                { text: "В) Я совершенно в замешательстве: босс постоянно так делает, с учетом того, что никаких форс-мажоров нет! Просто кричит и требует результата, постоянно меняет дедлайны. Что происходит? Он всегда был таким? Спрошу у коллег, ведь я работаю первый месяц. Меня такое поведение босса не устраивает.", result: "risk" },
+                { text: "Г) Спокойно буду делать работу до того дедлайна, который был первоначально поставлен. Когда босс подойдёт с криками, я скажу ему, что он сам ставил дедлайн три дня, и какие сейчас происходят форс-мажорные обстоятельства, что я должен оставаться и перерабатывать? Если руководителю хочется, пускай сам остаётся. Будет орать, сообщу начальству и уволюсь. Я крепкий орешек, меня много кто захочет взять на работу. Надо подумать о том, как раскусывать таких неадекватов еще на собеседовании.", result: "safe" }
+            ]
+        },
+        { text: "7. Представь, что твой руководитель на совещании публично назвал тебя: «глупцом». Для начала оцени свои чувства.",
+            answers: [
+                { text: "А) Забилось сердце, у меня паника, на меня все смотрят. Может, я что-то сделал не так, что-то глупое?", result: "danger", tip: "💡 Успокойся, подыши. С чего ты взял, что на тебя все смотрят и как-то осуждают? Что если твои коллеги тебе сочувствуют, ведь поведение руководителя непозволительно! Ведь ты понимаешь, что «глупец» - это оскорбление? На работе и вообще в жизни, это просто непозволительно и невоспитанно. Твоей вины нет! Срочно ищи поддержку и отдохни." },
+                { text: "Б) Я расхохотался, ведь это глупости так вести себя руководителю. Он выглядит настоящим посмешищем, оскорбляя прилюдно своего подчинённого. Мои друзья в коллективе всегда поддержат меня, а этот руководитель просто позорит самого себя.", result: "safe" },
+                { text: "В) Мне неловко, но внутри я себя поддерживаю, что эти слова не про меня. Я злюсь, кто дал ему право так говорить обо мне? Я не сдерживаюсь и спрашиваю: «Кто вам разрешил так говорить о подчинённых?»", result: "risk", tip: "💡 Правильно, что ты себя поддерживаешь, это очень важно." },
+                { text: "Г) Я ошарашен, я первый раз вижу такое поведение руководителя. А где этика? У меня нет никаких чувств, я просто спокойно констатирую, что такое корпоративная политика мне не подходит. Вот это помойка!", result: "safe" }
+            ]
+        },
+        { text: "8. Та же ситуация, из вопроса 7. Теперь скажи, что ты будешь делать после такого высказывания руководителя?",
+            answers: [
+                { text: "А) Я встал и вышел из-за стола посреди совещания. Никто не смеет оскорблять подчинённых. Я не обязан терпеть это. Я сообщу отделу HR, а также попрошу или перевести меня в другой отдел, или пусть руководитель публично принесёт мне извинения. Я могу подать в трудовую инспекцию жалобу, правда, у меня нет доказательств, только свидетели. Возиться не особо охота… Ведь если они взяли его на работу, значит знают какой он?", result: "safe" },
+                { text: "Б) Останусь и спрошу, из-за чего руководитель так сказал. Он начал перечислять мне мои промахи, которые я давно исправил. Кроме того, я еще на испытательном сроке и у меня даже нет наставника. Меня хотят выжить? Что я буду делать без работы? Надо мне лучше работать, чтобы не давать поводов так высказываться обо мне.", result: "danger", tip: "💡 Подумай, тебе подходит такая корпоративная культура, где руководитель публично оскорбляет, доводит сотрудника, а потом ТОЛЬКО по инициативе сотрудника руководитель предъявляет какие-то факты, уже неактуальные. Ты выбрал вариант «лучше работать», а что значит «работать лучше»? Как ты узнаешь, что значит работать лучше или хуже, если руководитель вот таким образом предъявляет свои претензии? Подумай об этом." },
+                { text: "В) Говорю руководителю, чтобы он прекратил свои оскорбления и ухожу из-за стола. Обдумываю и вспоминаю свои ошибки, не могу понять, что делать.", result: "risk" },
+                { text: "Г) Просто буду работать дальше, он всех оскорбляет, еще и похуже.", result: "risk", tip: "💡 А тебя устраивает, что он оскорбляет тебя, в частности? А ваша атмосфера в коллективе, а руководитель тебя устраивает? Какие твои цели? Что для тебя важно?" }
+            ]
+        },
+        { text: "9. Та же ситуация из вопроса 7, но с продолжением. Представь, что эта ситуация вылилась наружу, и сотрудник HR сказал тебе, что не стоит конфликтовать с твоим руководителем, ведь он приносит хороший доход компании, никто из-за тебя не будет его наказывать. Лучше тебе сидеть тихо, ведь лучше пожертвуют тобой, чем твоим руководителем. Твои мысли, действия?",
+            answers: [
+                { text: "А) Очевидно, здесь мне будет некомфортно работать. Я не одобряю, когда не уделяют внимание моральному состоянию сотрудников. Я не буду нервничать, я просто уйду из этой компании.", result: "safe" },
+                { text: "Б) Ничего нового. Так везде. Эти руководители непрофессиональные, но их никто не выгонит, они просто винтики этой системы. Буду работать дальше. Правда, уже идти на работу неохота…", result: "risk" },
+                { text: "В) Я хочу поговорить с коллегами и выяснить всю обстановку. Какие есть перспективы этой работы? Также спрошу у HR, есть ли другие отделы, куда можно перевестись, с учетом моих пожеланий. Посмотрю на её реакции.", result: "safe" },
+                { text: "Г) Я очень расстроен, я начинаю думать, что заварил такую кашу, теперь и отдел HR будет против меня.", result: "danger", tip: "💡 Как ты думаешь, насколько профессионален и этичен отдел HR, раз он будет против тебя? Здесь на этой работе неправомерно поступают. Выбор за тобой – думай, что тебе важно." }
+            ]
+        }
+    ];
+
+    const resultsMap = {
+        safe: { 
+            title: "🌿👍 ТЫ ПРИВИТ ОТ МАНИПУЛЯЦИЙ, ТАК ДЕРЖАТЬ! 👍😊", 
+            description: "Только надо разобраться, как ты попал сюда работать? Если ты сразу видишь манипуляции, ты мог бы заметить их еще на собеседовании, или руководитель вообще не проводил тебе собеседование? Знай, что можно заметить признаки токсичности еще до трудоустройства и больше не трать время на манипуляторов. Так держать! 😊", 
+            icon: "🌿👍😊" 
+        },
+        risk: { 
+            title: "⚠️ ТЫ В ЗОНЕ РИСКА ОКАЗАТЬСЯ ПОД ВЛИЯНИЕМ ТОКСИЧНОГО БОССА", 
+            description: "Судя по твоим ответам, ты распознаёшь манипуляции. Ты особо не волнуешься и не принимаешь на свой счёт обвинения и попытки тебя застыдить. Только вот, подумай: насколько тебя развивает твоя работа и эти токсичные руководители? То, что так везде – это неправда. Когда говорят: «так везде» - это тоже манипуляция и лишение человека выбора. Подумай об этом.", 
+            icon: "⚠️" 
+        },
+        danger: { 
+            title: "💀💀💀 ОПАСНОСТЬ! ТЫ ОЧЕНЬ УЯЗВИМ К МАНИПУЛЯЦИЯМ И ПРИНИМАЕШЬ ИХ ЗА ПРАВДУ 💀💀💀", 
+            description: "Почему ты считаешь, что то, что говорит твой босс о тебе – это правда? Почему ты автоматически начинаешь оправдываться в ответ на безаргументированные обвинения? Когда тебя публично оскорбляют, ты это терпишь – почему? Ты считаешь, что ты действительно этого заслуживаешь? Прочитай информацию про адаптацию на работе, про то, какие корпоративные культуры бывают на работе, как адаптируют новичка, про выгорание… То, что босс стыдит и давит – это не норма. Ищи другие комьюнити – поддерживающие и развивающие тебя. Перестань оправдываться и прислушайся к своим чувствам, работа не должна приносить такие разрушительные эмоции в жизнь, поверь.", 
+            icon: "💀" 
+        }
+    };
+
+    let currentIndex = 0;
+    let userResults = [];
+    let finalResultType = 'safe';
+
+    const startScreen = document.getElementById('startScreen');
+    const infoScreen = document.getElementById('infoScreen');
+    const quizScreen = document.getElementById('quizScreen');
+    const resultArea = document.getElementById('resultArea');
+    const questionText = document.getElementById('questionText');
+    const answersList = document.getElementById('answersList');
+    const counterSpan = document.getElementById('counter');
+    const progressFill = document.getElementById('progressFill');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultDesc = document.getElementById('resultDesc');
+    const resultIcon = document.getElementById('resultIcon');
+    const restartBtn = document.getElementById('restartBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const gameContainer = document.querySelector('.game-container');
+
+    function updateResultBackground() {
+        if (finalResultType === 'safe') {
+            gameContainer.style.background = "#d8f0c0";
+            resultArea.style.background = "#d8f0c0";
+        } else {
+            gameContainer.style.background = "";
+            resultArea.style.background = "";
+        }
+    }
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateProgress() {
+        const percent = (currentIndex / questionsData.length) * 100;
+        progressFill.style.width = `${percent}%`;
+        counterSpan.innerText = `Вопрос ${currentIndex + 1} из ${questionsData.length}`;
+    }
+
+    function showTip(tipText, callback) {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-icon">💡</div>
+                <div class="modal-title">Полезная информация</div>
+                <div class="modal-text">${tipText}</div>
+                <button class="modal-btn" id="modalOkBtn">Понятно, дальше</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        document.getElementById('modalOkBtn').addEventListener('click', () => {
+            overlay.remove();
+            callback();
+        });
+    }
+
+    function renderQuestion() {
+        if (currentIndex >= questionsData.length) {
+            calculateFinalResult();
+            return;
+        }
+        const q = questionsData[currentIndex];
+        questionText.innerText = q.text;
+        answersList.innerHTML = '';
+        q.answers.forEach((ans) => {
+            const btn = document.createElement('button');
+            btn.className = 'answer-btn';
+            btn.innerText = ans.text;
+            btn.addEventListener('click', () => {
+                if (ans.tip) {
+                    showTip(ans.tip, () => {
+                        userResults.push(ans.result);
+                        currentIndex++;
+                        updateProgress();
+                        renderQuestion();
+                    });
+                } else {
+                    userResults.push(ans.result);
+                    currentIndex++;
+                    updateProgress();
+                    renderQuestion();
+                }
+            });
+            answersList.appendChild(btn);
+        });
+        updateProgress();
+    }
+
+    function calculateFinalResult() {
+        const counts = { safe: 0, risk: 0, danger: 0 };
+        for (let res of userResults) {
+            if (counts[res] !== undefined) counts[res]++;
+        }
+        let maxCount = -1;
+        let dominant = 'safe';
+        for (let [key, val] of Object.entries(counts)) {
+            if (val > maxCount) {
+                maxCount = val;
+                dominant = key;
+            }
+        }
+        finalResultType = dominant;
+        const final = resultsMap[finalResultType];
+        resultIcon.innerText = final.icon;
+        resultTitle.innerText = final.title;
+        resultDesc.innerText = final.description;
+        quizScreen.style.display = 'none';
+        resultArea.classList.remove('hidden');
+        updateResultBackground();
+        setTimeout(scrollToTop, 100);
+    }
+
+    function shareResult() {
+        let shareText = '';
+        if (finalResultType === 'safe') {
+            shareText = '🌿👍 Я прошёл тест «Ты защищён от токсичности на работе?» — я ПРИВИТ от манипуляций! А у тебя? Пройди и ты!';
+        } else if (finalResultType === 'risk') {
+            shareText = '⚠️ Я прошёл тест «Ты защищён от токсичности на работе?» — я в ЗОНЕ РИСКА. А у тебя? Пройди и ты!';
+        } else {
+            shareText = '💀 Я прошёл тест «Ты защищён от токсичности на работе?» — я ОЧЕНЬ УЯЗВИМ к манипуляциям! А у тебя? Пройди и ты!';
+        }
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'Результат теста «Ты защищён от токсичности на работе?»',
+                text: shareText,
+                url: window.location.href
+            }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(shareText);
+            alert('🔗 Текст скопирован! Отправь его другу в любой мессенджер.');
+        }
+    }
+
+    function restartGame() {
+        currentIndex = 0;
+        userResults = [];
+        resultArea.classList.add('hidden');
+        startScreen.classList.remove('hidden');
+        infoScreen.classList.add('hidden');
+        quizScreen.style.display = 'none';
+        gameContainer.style.background = "";
+        resultArea.style.background = "";
+        setTimeout(scrollToTop, 100);
+    }
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+        startScreen.classList.add('hidden');
+        infoScreen.classList.remove('hidden');
+        scrollToTop();
+    });
+
+    document.getElementById('infoBtn').addEventListener('click', () => {
+        infoScreen.classList.add('hidden');
+        quizScreen.style.display = 'block';
+        renderQuestion();
+        scrollToTop();
+    });
+
+    restartBtn.addEventListener('click', restartGame);
+    shareBtn.addEventListener('click', shareResult);
+</script>
+</body>
+</html>
